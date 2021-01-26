@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError, delay, shareReplay, tap } from 'rxjs/operators';
+import { catchError, delay, first, map, max, mergeAll, shareReplay, tap } from 'rxjs/operators';
 import { Product } from './product.interface';
 
 @Injectable({
@@ -11,9 +11,30 @@ export class ProductService {
 
   private baseUrl = 'https://storerestservice.azurewebsites.net/api/products/';
   products$: Observable<Product[]>;
+  mostExpensiveProduct$: Observable<Product>;
 
   constructor(private http: HttpClient) { 
     this.initProducts();
+    this.initMostExpensiveProduct();
+  }
+
+  private initMostExpensiveProduct() {
+    this.mostExpensiveProduct$ =
+      this
+      .products$  
+      .pipe( 
+        
+        // map(products => [...products].sort((p1, p2) => p1.price > p2.price ? -1 : 1)),
+        // // [{}, {}, {}, ...]
+        // mergeAll(),
+        // // {}, {}, {}, ...
+        // first(),       
+        
+         mergeAll(),
+         max<Product>((p1, p2) => p1.price < p2.price ? -1 : 1)        
+         
+       )
+ 
   }
 
   initProducts() {
