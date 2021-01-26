@@ -72,7 +72,10 @@ export class ProductListComponent implements OnInit {
     // Liste des produits
     this.products$ = this
                       .productService
-                      .products$;
+                      .products$
+                      .pipe(
+                        filter(products => products.length > 0)
+                      );
 
     // Nombre de produits
     this.productsNumber$ = this
